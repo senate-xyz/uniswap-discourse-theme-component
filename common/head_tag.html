@@ -1,0 +1,81 @@
+<script type="text/discourse-plugin" version="0.8.28">
+  $(document).ready(function() {
+      var btn = document.getElementById("senate-uniswap-theme-btn");
+      var popup = document.getElementById("senate-uniswap-theme-popup");
+      var closebtn = document.getElementsByClassName("senate-uniswap-theme-close")[0];
+      var subscribebtn = document.getElementById("senate-uniswap-theme-subscribe-btn");
+      var emailinput = document.getElementById("senate-uniswap-theme-email");
+      var headertext = document.getElementById("senate-uniswap-theme-header-text");
+      var descriptiontext = document.getElementById("senate-uniswap-theme-description-text");
+      var descriptionemoji = document.getElementById("senate-uniswap-theme-description-emoji");
+
+      descriptionemoji.style.display = "none";
+
+      subscribebtn.onclick = async function(){
+        try {
+            const response = await fetch("https://staging.senatelabs.xyz/api/discourse/uniswap-magic-user", {
+            method: "POST",
+            body: JSON.stringify({ email: emailinput.value }),
+            headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            },
+            });
+            const jsonData = await response.json();
+
+            if (jsonData.result == "failed"){
+                descriptionemoji.style.display = "block";
+                headertext.innerHTML = "Oops..";
+                descriptionemoji.innerHTML = "😰";
+                descriptiontext.innerHTML = "Something went wrong and we couldn't create a new user for you. Please try again later.";
+                subscribebtn.style.display = "none";
+                emailinput.style.display = "none";
+            }
+
+            if (jsonData.result == "existing"){
+                descriptionemoji.style.display = "block";
+                headertext.innerHTML = "All set!";
+                descriptionemoji.innerHTML = "✅";
+                descriptiontext.innerHTML = "You are already subscribed to uniswap proposal notifications.";
+                subscribebtn.style.display = "none";
+                emailinput.style.display = "none";
+            }
+
+            if (jsonData.result == "success"){
+                descriptionemoji.style.display = "block";
+                headertext.innerHTML = "Thank you!";
+                descriptionemoji.innerHTML = "🙏";
+                descriptiontext.innerHTML = "";
+                subscribebtn.style.display = "none";
+                emailinput.style.display = "none";
+            }
+
+        } catch (error) {
+            descriptionemoji.style.display = "block";
+            headertext.innerHTML = "";
+            descriptionemoji.innerHTML = "😰";
+            descriptiontext.innerHTML = "Something went wrong and we couldn't create a new user for you. Please try again later.";
+            subscribebtn.style.display = "none";
+            emailinput.style.display = "none";
+        }
+      }
+
+      emailinput.oninput = function() {
+          subscribebtn.style.opacity = "100%";
+      }
+
+      btn.onclick = function() {
+          popup.style.display = "block";
+      }
+
+      closebtn.onclick = function() {
+          popup.style.display = "none";
+      }
+
+      window.onclick = function(event) {
+          if (event.target == popup) {
+              popup.style.display = "none";
+          }
+      }
+  });
+</script>
